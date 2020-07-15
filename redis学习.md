@@ -14,7 +14,7 @@
 
 ```
 
-> NoSql 四大分类
+> 2.NoSql 四大分类
 
 - KV键值对
   	redis+Tair+memcache
@@ -29,10 +29,24 @@
 
   分布式文件系统
 
-- 图存储
+- 存储
 
   ​	社交网络 neo4jKV键值对
-  ​	redis+Tair+memcache
 
-- 
+> 3.redies 概述
 
+1.  remote dictionary server 远程字典服务
+
+   c语言编写，支持网络，可基于内存也可持久化的，key-value数据库
+
+   > 能干嘛
+
+   内存存储，
+
+   持久化，
+
+   高效率高速缓存，
+
+   发布订阅系统，
+
+   计数器浏览量
