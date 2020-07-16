@@ -72,8 +72,52 @@ redis-benchmark -h localhost -c 100 -n 100000
 
 > 基础知识
 
-database 默认有16个
+database 默认有16个 
 
-select 3 默认是 0
+select 3 进行切换 默认是 0
 
 flushdb 清空数据库  flushall 清空所有数据库
+
+> redis 数据类型
+
+![image-20200716111919614](C:\Users\pc\AppData\Roaming\Typora\typora-user-images\image-20200716111919614.png)
+
+```
+1.redis-key
+EXPIRE mykey 10 设置过期时间
+EXISTS mykey 1存在 0 不存在
+MOVE key db 移动key到指定数据库
+keys * 查看所有key
+TTL mykey # 查看mykey剩余的过期时间
+type mykey 查看数据类型
+```
+
+```
+2.String 类型 大部分使用场景
+append mykey value 拼接字符串
+strlen mykey  获取长度
+incr mykey +1
+decr mykey -1
+incrby mykey 10 步增
+decrby mykey 10 步减
+getrange mykey start end 截取
+setrange mykey offset value 替换
+setex key4 30 "1234" 设置过期时间
+setnx key1 323 如果不存在则设置值，存在则不操作s
+mset k1 v1 k2 v2 批量设置值
+mget k1 k2	批量获取值
+msetnx 如果不存在则设置值，存在则不操作 如果有1个失败，则全部失败
+set user:1:age 2
+set user:1:name 张三
+getset 先获取再赋值
+
+```
+
+> List 类型
+
+```
+可以当成栈或者阻塞队列
+lpush list 1 添加数据
+lrange list	遍历数据
+```
+
