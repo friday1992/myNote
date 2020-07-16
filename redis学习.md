@@ -50,3 +50,30 @@
    发布订阅系统，
 
    计数器浏览量
+
+> redis linux 安装
+
+```
+1.下载安装包，并解压 tar –xvf
+2. 安装gcc yum install gcc-c++
+3，make  make install 开始安装
+4.cp redis.conf /config  拷贝配置文件
+5.修改 daemonize 为yes
+6.启动  redis-server /config/redis.conf
+7.redis-cli -h localhost   redis-cli -p 6379
+8.shutdown 
+9.exit
+10.ps -ef|grep redis
+```
+
+> redis-benchmark  压力测试
+
+redis-benchmark -h localhost -c 100 -n 100000
+
+> 基础知识
+
+database 默认有16个
+
+select 3 默认是 0
+
+flushdb 清空数据库  flushall 清空所有数据库
