@@ -118,6 +118,83 @@ getset 先获取再赋值
 ```
 可以当成栈或者阻塞队列
 lpush list 1 添加数据
-lrange list	遍历数据
+lrange list	0 1遍历数据
+llen list 
+lpop list 
+lrem list count value 移除特定数量的value
+ltrim list start end 截取 改变 list 
+rpoplpush list list1 移除一个列表最后一个，放入新的列表中
+lset list index newvalue
+ linsert list after/before 2 agfg
+
+
+
+```
+
+> set set集合 无序不重复集合
+
+```
+sadd
+smembers 
+sismember set 5
+scard set 计算长度
+srandmember set count
+spop set  
+smove set set2 2   移动到另外一个
+sdiff set set2 第一个单独有的
+sinter set set2  交集
+sunion set set2  并集
+```
+
+> hash
+
+```
+ hgetall set 
+ hset set fildes value
+ hget set fildes
+ hlen set  获取长度
+ hexists set filde2  判断是否存在
+hkeys set 获取所有key
+hvals set 获取所有值
+hincrby set filde1 1
+hsetnx set filde1 21312  存在不修改，不存在则添加
+应用：用户信息保存，string 更适合字符串
+
+
+```
+
+> zset 有序集合
+
+```
+zset set index value  再index加入元素
+ zrange zset 0 3  遍历元素
+zrangebyscore zset -inf +inf  更具index 排序
+zrangebyscore zset -inf +inf withscores  从低到高
+zrevrangebyscore zset +inf -inf  从高到低
+zcount zset 0 3000 获取区间指定数量
+ 应用：有序的可以存储工资表成绩表 ，带权重的消息
+```
+
+> geospatial  地理位置定位
+
+```
+GEOADD
+GEODIST  返回给定2个位置的距离
+GEOHASH   返回11个字符串的hash长度
+GEOPOS  geopos Sicily Catania  获取经度和纬度
+GEORADIUS  已给定的经度，纬度为中心，找出半径内的位置
+GEORADIUSBYMEMBER  找出给定滴定200KM范围内的元素  GEORADIUSBYMEMBER   Sicily  Catania 200km
+
+GEOADD Sicily 13.361389 38.115556 "Palermo" 15.087269 37.502669 "Catania"
+(integer) 2
+redis> GEODIST Sicily Palermo Catania  km
+"166274.1516"
+redis> GEORADIUS Sicily 15 37 100 km
+1) "Catania"
+redis> GEORADIUS Sicily 15 37 200 km
+1) "Palermo"
+2) "Catania"
+
+底层是zset ，可以用zrange zrem
 ```
 
