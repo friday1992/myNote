@@ -175,7 +175,7 @@ zcount zset 0 3000 获取区间指定数量
  应用：有序的可以存储工资表成绩表 ，带权重的消息
 ```
 
-> geospatial  地理位置定位
+> geospatial  地理位置定位  可以做附近的人
 
 ```
 GEOADD
@@ -196,5 +196,236 @@ redis> GEORADIUS Sicily 15 37 200 km
 2) "Catania"
 
 底层是zset ，可以用zrange zrem
+```
+
+> hyperloglog 
+
+```
+1.什么是基数
+不重复的元素=5，可以接收误差
+2.应用
+网站uv ,同一个人多次访问算一次
+传统方式是set,不重复，但是如果存大量id,会占用大量内存
+3.hyperloglog优点
+占用内存是固定的，2^64的数据，只占用12kb
+4.使用
+pfadd mylog  1 1 3 413 2 2
+pfcount mylog  会去掉重复的元素
+pfmerge mylog3 mylog1 mylog2  合并2个集合，去重
+
+```
+
+> bitmaps   位存储
+
+```
+1.应用场景
+统计人数，活跃用户，打卡
+只要有2个状态的可以使用bitmaps
+2.使用
+setbit mybit 0 1  记录一个星期的打卡
+getbit mybit 0
+bitcount mybit  统计
+
+```
+
+## Redis 事务
+
+```
+1.开启事务
+multi
+2.执行操作 进入队列
+3.提交执行
+exec 
+4.取消操作
+discard
+
+```
+
+```
+编译型异常 在第二步操作中出现了命令报错，如输入参数错误，则最后exec执行失败
+运行时异常  对一个字符串进行加1 ，这时候其他命令会得到执行，报错的这条不会执行
+```
+
+> 悲观锁和乐观锁
+
+```
+1.悲观锁 无论什么时候都会加解锁
+2.乐观锁 更新的时候去判断是否有人更改过数据
+watch money 监视乐观锁的操作，如果有其他线程修改了money值，提交事务的时候会失败
+unwatch exec discard都会自动解锁
+```
+
+## Jedis
+
+```
+1.连接数据库
+ Jedis jedis = new Jedis("127.0.0.1",6379);
+2.  //开启事务
+        Transaction transaction = jedis.multi();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("hello", "world");
+        jsonObject.put("i", "love");
+        String result = jsonObject.toJSONString();
+        Response<String> name = transaction.get("username");
+        try {
+            transaction.watch("username");
+            System.out.println(name.toString());
+            transaction.set("json", result);
+            transaction.set("json2", result);
+            transaction.set("username", "2345");
+            Thread.sleep(10000);
+//          int i = 1 /0;
+            transaction.exec();
+        } catch (Exception e) {
+            transaction.discard();
+            e.printStackTrace();
+        } finally {
+            System.out.println(jedis.get("json"));
+            System.out.println(jedis.get("json2"));
+
+            transaction.close();
+        }
+```
+
+> springboot 集合redis
+
+```
+1.底层没有使用jedis ，因为jedis是直连redis,在多线程下不安全
+2.lettuce底层是netty,实例可以在多线程下共享
+3.配置redis
+spring.redis.url=localhost
+spring.redis.port=6379
+4.使用RedisTemplate进行操作
+5.源码看RedisAutoConfiguration    RedisProperties
+```
+
+> Redis.config
+
+![image-20200723150339978](C:\Users\pc\AppData\Roaming\Typora\typora-user-images\image-20200723150339978.png)
+
+大小写不敏感
+
+![image-20200723150432906](C:\Users\pc\AppData\Roaming\Typora\typora-user-images\image-20200723150432906.png)
+
+```
+# Specify the server verbosity level.
+# This can be one of:
+# debug (a lot of information, useful for development/testing)
+# verbose (many rarely useful info, but not a mess like the debug level)
+# notice (moderately verbose, what you want in production probably)
+# warning (only very important / critical messages are logged)
+loglevel notice  日志级别
+ 
+# Specify the log file name. Also 'stdout' can be used to force
+# Redis to log on the standard output. 
+logfile ""   日志文件地址
+```
+
+> 持久化配置
+
+```
+# Save the DB on disk:
+#
+#   save <seconds> <changes>
+#
+#   Will save the DB if both the given number of seconds and the given
+#   number of write operations against the DB occurred.
+#
+#   In the example below the behaviour will be to save:
+#   after 900 sec (15 min) if at least 1 key changed
+#   after 300 sec (5 min) if at least 10 keys changed
+#   after 60 sec if at least 10000 keys changed
+#
+#   Note: you can disable saving completely by commenting out all "save" lines.
+#
+#   It is also possible to remove all the previously configured save
+#   points by adding a save directive with a single empty string argument
+#   like in the following example:
+#
+#   save ""
+
+save 900 1  900秒内修改一次，持久化，以下类推
+save 300 10
+save 60 10000
+
+# However if you have setup your proper monitoring of the Redis server
+# and persistence, you may want to disable this feature so that Redis will
+# continue to work as usual even if there are problems with disk,
+# permissions, and so forth.
+stop-writes-on-bgsave-error yes  //持久化出错是否继续工作
+# Compress string objects using LZF when dump .rdb databases?
+# For default that's set to 'yes' as it's almost always a win.
+# If you want to save some CPU in the saving child set it to 'no' but
+# the dataset will likely be bigger if you have compressible values or keys.
+rdbcompression yes  //是否压缩rdb文件
+# Since version 5 of RDB a CRC64 checksum is placed at the end of the file.
+# This makes the format more resistant to corruption but there is a performance
+# hit to pay (around 10%) when saving and loading RDB files, so you can disable it
+# for maximum performances.
+#
+# RDB files created with checksum disabled have a checksum of zero that will
+# tell the loading code to skip the check.
+rdbchecksum yes              //保存rdb的时候是否检查错误
+
+# The filename where to dump the DB
+dbfilename dump.rdb
+
+# The working directory.
+#
+# The DB will be written inside this directory, with the filename specified
+# above using the 'dbfilename' configuration directive.
+# 
+# The Append Only File will also be created inside this directory.
+# 
+# Note that you must specify a directory here, not a file name.
+dir ./  rdb文件路径
+
+################################## SECURITY ###################################
+
+# Require clients to issue AUTH <PASSWORD> before processing any other
+# commands.  This might be useful in environments in which you do not trust
+# others with access to the host running redis-server.
+#
+# This should stay commented out for backward compatibility and because most
+# people do not need auth (e.g. they run their own servers).
+# 
+# Warning: since Redis is pretty fast an outside user can try up to
+# 150k passwords per second against a good box. This means that you should
+# use a very strong password otherwise it will be very easy to break.
+#
+# requirepass foobared  设置密码
+命令行设置  config set requirepass 123456   
+config get requirepass 
+
+# maxclients 10000 //最大客户端数量
+ maxmemory <bytes>  //最大内存
+ # maxmemory-policy noeviction 内存满后，执行哪种策略
+ # volatile-lru -> remove the key with an expire set using an LRU algorithm
+# allkeys-lru -> remove any key according to the LRU algorithm
+# volatile-random -> remove a random key with an expire set
+# allkeys-random -> remove a random key, any key
+# volatile-ttl -> remove the key with the nearest expire time (minor TTL)
+# noeviction -> don't expire at all, just return an error on write operations
+
+ 
+appendonly no AOF模式默认关闭，RDB默认
+appendfilename "appendonly.aof"
+# appendfsync always
+appendfsync everysec
+# appendfsync no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb  //超过64m就重写
+
+
+AOF是已日志的形式记录全部写记录，重启的时候恢复所有操作记录
+AOF 修复
+如果aof文件被破坏
+可以使用  redis-check-aof 修复
+优点和缺点
+优点：
+同步效果好，可以设置每秒同步，每次同步
+缺点:
+aof比rdb大
+io操作多，比rdb慢
 ```
 
