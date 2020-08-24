@@ -429,3 +429,85 @@ aof比rdb大
 io操作多，比rdb慢
 ```
 
+> 发布订阅者模式
+
+```
+1.订阅频道
+subsribe luonan
+2.发送消息
+publish luoann "hello"
+redis是C语言写的，可以再publish.c查看源码。订阅一个频道，redis就会维护一个字典，而字典的值就是一个链表
+```
+
+> 主从复制
+
+```
+1，master负责写，slave负责读
+2.作用：
+ 	1.数据冗余，实现了数据的热备份
+ 	2.故障修复，
+ 	3，负载均衡
+ 	4.高可用
+3.配饰集群
+	info replication  查看是否是master
+	# Replication
+    role:master
+    connected_slaves:0
+    master_replid:f37c0ae1cae28c4edfc0d33745ddd31b63ef8d4c
+    master_replid2:0000000000000000000000000000000000000000
+    master_repl_offset:0
+    second_repl_offset:-1
+    repl_backlog_active:0
+    repl_backlog_size:1048576
+    repl_backlog_first_byte_offset:0
+    repl_backlog_histlen:0
+一主二从
+slaveof IP port
+127.0.0.1:6380> info replication
+# Replication
+role:slave
+master_host:192.168.31.128
+master_port:6379
+master_link_status:down
+master_last_io_seconds_ago:-1
+master_sync_in_progress:0
+slave_repl_offset:0
+master_link_down_since_seconds:1595734481
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+master_replid:a94d3b953152721b323e48c31254c2132df72cc3
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:0
+second_repl_offset:-1
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+也可以再配置文件中配置
+replicaof ip port
+
+slaveof no one 使自己变成主机
+```
+
+```
+哨兵模式
+```
+
+```
+监控后台主机是否故障，通过投票，重新选取主机
+sentinel.conf 
+sentinel monitor mymaster 127.0.0.1 6379 2
+启动哨兵
+redis-sentinel conf
+
+```
+
+> 内存穿透和雪崩
+
+```
+1。加上布隆过滤器
+2.缓存空对象
+3.缓存击穿
+```
+
