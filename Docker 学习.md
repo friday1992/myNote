@@ -108,7 +108,7 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 jar 包和Dockerfile 放在同一个文件下下面执行build 命令
 docker build -t 镜像名 .
 运行镜像
-docker run -d -p 主机端口:docker端口 镜像名
+docker run  -p 主机端口:12531 镜像名
 ```
 
 容器命令
@@ -131,6 +131,8 @@ docker ps 查看运行容器 -a 查看历史
 
 ```
 推送镜像到dockerhub
+docker tag bigdata friday1992/bigdata:1.1
+docker push friday1992/bigdata:1.1
 
 ```
 

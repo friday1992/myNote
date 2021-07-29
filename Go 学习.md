@@ -112,3 +112,46 @@ func (node *treeNode) setValue(a int) {
 ```
 
 > go mod 的使用
+
+> 接口
+
+```
+package main
+
+import "fmt"
+
+type Checken struct {
+
+}
+func (c Checken) isCheck() bool {
+	fmt.Println("我是小鸡")
+	return true
+}
+func (c Checken) Quack(){
+	fmt.Println("我学鸭子叫")
+}
+func (c Checken) DuckGo(){
+	fmt.Println("我学鸭子走路")
+}
+func DoDcuk(d Duck){
+	d.DuckGo()
+	d.Quack()
+}
+func main(){
+	c:=Checken{}
+	c.isCheck()
+	DoDcuk(c)
+
+}
+```
+
+```
+package main
+
+type Duck interface {
+	Quack()
+	DuckGo()
+}
+
+```
+
